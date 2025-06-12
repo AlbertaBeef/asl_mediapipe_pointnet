@@ -1,5 +1,6 @@
 
 import os
+import sys
 import numpy as np
 import torch
 import cv2
@@ -8,6 +9,9 @@ import itertools
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
+
+sys.path.append('./model')
+from point_net import PointNet
 
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -90,15 +94,16 @@ def predict_live():
                 if handedness == "Left":
                     hand_x = 10
                     hand_y = 30
-                    #hand_color = (0, 0, 255) # RGB : Blue
-                    hand_color = (0, 255, 0) # RBG : Green
+                    #hand_color = (0, 0, 255) # BGR : Red
+                    hand_color = (0, 255, 0) # BGR : Green
+                    #hand_color = (0, 0, 255) # BGR : Blue
                     hand_msg = 'LEFT='
                 if handedness == "Right":
                     hand_x = image_width-128
                     hand_y = 30
-                    #hand_color = (0, 255, 0) # RBG : Green
-                    #hand_color = (0, 0, 255) # RGB : Blue
-                    hand_color = (255, 0, 0) # RGB : Red
+                    hand_color = (0, 0, 255) # BGR : Red
+                    #hand_color = (0, 255, 0) # BGR : Green
+                    #hand_color = (255, 0, 0) # BGR : Blue
                     hand_msg = 'RIGHT='
                           
                 # Determine point cloud of hand

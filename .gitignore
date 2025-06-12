@@ -1,4 +1,5 @@
 __pycache__/
+model/*.pth
 ros2_ws/asl_mediapipe_pointnet/build/
 ros2_ws/asl_mediapipe_pointnet/install/
 ros2_ws/asl_mediapipe_pointnet/log/
