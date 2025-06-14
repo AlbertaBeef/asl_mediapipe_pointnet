@@ -38,8 +38,8 @@ import mediapipe as mp
 #    https://github.com/e-roe/pointnet_hands/tree/main
 import torch
 
-sys.path.append('/media/albertabeef/Tycho/asl_mediapipe_pointnet/model')
-from point_net import PointNet
+#sys.path.append('/media/albertabeef/Tycho/asl_mediapipe_pointnet/model')
+#from point_net import PointNet
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -58,13 +58,13 @@ class AslMediaPipePointNetDemo(Node):
 
     def __init__(self):
         super().__init__('asl_mediapipe_pointnet_demo')
-        self.subscriber1_ = self.create_subscription(Image,'camera/image',self.listener_callback,10)
+        #self.subscriber1_ = self.create_subscription(Image,'camera/image',self.listener_callback,10)
         self.subscriber2_ = self.create_subscription(Image,'image_raw',self.listener_callback,10)
-        self.subscriber1_  # prevent unused variable warning
+        #self.subscriber1_  # prevent unused variable warning
         self.subscriber2_  # prevent unused variable warning
         self.publisher1_ = self.create_publisher(Image, 'vision/asl_annotated', 10)
         #self.publisher2_ = self.create_publisher(Image, 'vision/asl_hand', 10)
-        self.publisher2_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)        
+        #self.publisher2_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)        
         self.publisher3_ = self.create_publisher(Twist, 'cmd_vel', 10)        
         
         # Open MediaPipe Hands model
@@ -79,13 +79,17 @@ class AslMediaPipePointNetDemo(Node):
         self.mp_drawing_styles = mp.solutions.drawing_styles
 
         # PointNet model
-        self.model_name = 'point_net_1.pth'
-        self.model_path = '/media/albertabeef/Tycho/asl_mediapipe_pointnet/model'       
+        self.declare_parameter("model_path", "/media/albertabeef/Tycho/asl_mediapipe_pointnet/model")
+        self.declare_parameter("model_name", "point_net_1.pth")
+        self.model_path = self.get_parameter('model_path').value        
+        self.model_name = self.get_parameter('model_name').value  
+        self.get_logger().info('Model path/name : "%s"' % os.path.join(self.model_path, self.model_name))      
+        sys.path.append(self.model_path)
         #self.model = PointNet(len(char2int)).to(device)
         #self.model.load_state_dict( torch.load(os.path.join(self.model_path, self.model_name),weights_only=True) )
         self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False)
         #self.model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
-        
+
         # Parameters (for text overlay)
         self.scale = 1.0
         self.text_fontType = cv2.FONT_HERSHEY_SIMPLEX
@@ -220,7 +224,7 @@ class AslMediaPipePointNetDemo(Node):
                       msg.linear.x = 2.0
                       # Modify message to turn right (-ve value on z axis)
                       msg.angular.z = -2.0
-                    self.publisher2_.publish(msg)
+                    #self.publisher2_.publish(msg)
                     #
                     self.publisher3_.publish(msg)
 
