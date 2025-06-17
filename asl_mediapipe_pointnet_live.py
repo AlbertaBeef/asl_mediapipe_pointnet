@@ -44,8 +44,7 @@ def predict_live():
     model_name = 'point_net_1.pth'
     model_path = './model'
 
-    #model = torch.load(os.path.join(model_path, model_name))
-    model = torch.load(os.path.join(model_path, model_name),weights_only=False)
+    model = torch.load(os.path.join(model_path, model_name),weights_only=False,map_location=device)
     
     # Open video
     input_video = 0

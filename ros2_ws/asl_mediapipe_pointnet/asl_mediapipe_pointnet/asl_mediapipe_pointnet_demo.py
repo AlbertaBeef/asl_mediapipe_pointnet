@@ -86,8 +86,8 @@ class AslMediaPipePointNetDemo(Node):
         self.get_logger().info('Model path/name : "%s"' % os.path.join(self.model_path, self.model_name))      
         sys.path.append(self.model_path)
         #self.model = PointNet(len(char2int)).to(device)
-        #self.model.load_state_dict( torch.load(os.path.join(self.model_path, self.model_name),weights_only=True) )
-        self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False)
+        #self.model.load_state_dict( torch.load(os.path.join(self.model_path, self.model_name),weights_only=True,map_location=device) )
+        self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
         #self.model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
 
         # Parameters (for text overlay)
