@@ -8,8 +8,6 @@ import mediapipe as mp
 import itertools
 import matplotlib.pyplot as plt
 
-from tqdm import tqdm
-
 sys.path.append('./model')
 from point_net import PointNet
 
