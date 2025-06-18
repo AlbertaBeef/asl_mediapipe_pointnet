@@ -7,7 +7,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             "model_path",
-            default_value="/media/albertabeef/Tycho/asl_mediapipe_pointnet/model",
+            default_value="/root/asl_mediapipe_pointnet/model",
             description="Path (absolute) to PointNet model."
         ),
         DeclareLaunchArgument(

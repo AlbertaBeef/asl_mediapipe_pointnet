@@ -79,7 +79,7 @@ class AslMediaPipePointNetDemo(Node):
         self.mp_drawing_styles = mp.solutions.drawing_styles
 
         # PointNet model
-        self.declare_parameter("model_path", "/media/albertabeef/Tycho/asl_mediapipe_pointnet/model")
+        self.declare_parameter("model_path", "/root/asl_mediapipe_pointnet/model")
         self.declare_parameter("model_name", "point_net_1.pth")
         self.model_path = self.get_parameter('model_path').value        
         self.model_name = self.get_parameter('model_name').value  
