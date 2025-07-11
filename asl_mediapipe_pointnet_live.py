@@ -108,7 +108,8 @@ def predict_live():
                 for lm in hand_landmarks.landmark:
                     points_raw.append([lm.x, lm.y, lm.z])
                 points_raw = np.array(points_raw)
-
+                #print("points_raw=",points_raw)
+                        
                 # Normalize point cloud of hand
                 points_norm = points_raw.copy()
                 min_x = np.min(points_raw[:, 0])
@@ -121,6 +122,7 @@ def predict_live():
                     # PointNet model was trained on left hands, so need to mirror right hand landmarks
                     if handedness == "Right":
                         points_norm[i][0] = 1.0 - points_norm[i][0]
+                #print("points_norm=",points_norm)
                                             
                 # Draw hand landmarks of each hand.
                 for hc in mp_hands.HAND_CONNECTIONS:
@@ -144,6 +146,7 @@ def predict_live():
                     	(hand_x,hand_y),
                     	text_fontType,text_fontSize,
                     	hand_color,text_lineSize,text_lineType)
+                    #print(asl_text)
         
                     actionDetected = ""
                     if asl_sign == 'A':
