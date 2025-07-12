@@ -23,7 +23,7 @@ def generate_launch_description():
         ),
         Node(
             package='asl_mediapipe_pointnet',
-            executable='asl_controller_twist_node',
+            executable='asl_controller_pose_node',
             name="my_asl_controller",
             parameters=[
                {"model_path":LaunchConfiguration("model_path")},
@@ -31,7 +31,13 @@ def generate_launch_description():
             ],
             remappings=[
                ("image_raw", "my_input_image"),
-               ("asl_controller/cmd_vel", "turtle1/cmd_vel")
-            ]            
+               ("asl_controller/target_pose", "target_pose")
+            ]
+        ),
+        Node(
+            package='asl_moveit_demos',
+            executable='pose_controlled_moveit',
+            name="my_pose_controller",
+            remappings=[("target_pose", "target_pose")]
         )
     ])

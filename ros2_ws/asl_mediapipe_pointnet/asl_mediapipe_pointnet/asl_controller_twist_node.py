@@ -54,18 +54,14 @@ char2int = {
 
 
 @torch.no_grad()        
-class AslMediaPipePointNetDemo(Node):
+class AslControllerTwistNode(Node):
 
     def __init__(self):
-        super().__init__('asl_mediapipe_pointnet_demo')
-        #self.subscriber1_ = self.create_subscription(Image,'camera/image',self.listener_callback,10)
-        self.subscriber2_ = self.create_subscription(Image,'image_raw',self.listener_callback,10)
-        #self.subscriber1_  # prevent unused variable warning
-        self.subscriber2_  # prevent unused variable warning
-        self.publisher1_ = self.create_publisher(Image, 'vision/asl_annotated', 10)
-        #self.publisher2_ = self.create_publisher(Image, 'vision/asl_hand', 10)
-        #self.publisher2_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)        
-        self.publisher3_ = self.create_publisher(Twist, 'cmd_vel', 10)        
+        super().__init__('asl_controller_twist_node')
+        self.subscriber1_ = self.create_subscription(Image,'image_raw',self.listener_callback,10)
+        self.subscriber1_  # prevent unused variable warning
+        self.publisher1_ = self.create_publisher(Image, 'asl_controller/image_annotated', 10)
+        self.publisher2_ = self.create_publisher(Twist, 'asl_controller/cmd_vel', 10)        
         
         # Open MediaPipe Hands model
         self.mp_hands = mp.solutions.hands
@@ -85,8 +81,6 @@ class AslMediaPipePointNetDemo(Node):
         self.model_name = self.get_parameter('model_name').value  
         self.get_logger().info('Model path/name : "%s"' % os.path.join(self.model_path, self.model_name))      
         sys.path.append(self.model_path)
-        #self.model = PointNet(len(char2int)).to(device)
-        #self.model.load_state_dict( torch.load(os.path.join(self.model_path, self.model_name),weights_only=True,map_location=device) )
         self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
         #self.model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
 
@@ -120,7 +114,6 @@ class AslMediaPipePointNetDemo(Node):
             #self.get_logger().info('Detected Handedness: "%s"' % results.multi_handedness)
             #self.get_logger().info('Detected Landmarks : "%s"' % results.multi_hand_landmarks)
                 
-            #for hand_landmarks in results.multi_hand_landmarks:
             for hand_id in range(len(results.multi_hand_landmarks)):
                 hand_handedness = results.multi_handedness[hand_id]
                 hand_landmarks = results.multi_hand_landmarks[hand_id]
@@ -224,9 +217,7 @@ class AslMediaPipePointNetDemo(Node):
                       msg.linear.x = 2.0
                       # Modify message to turn right (-ve value on z axis)
                       msg.angular.z = -2.0
-                    #self.publisher2_.publish(msg)
-                    #
-                    self.publisher3_.publish(msg)
+                    self.publisher2_.publish(msg)
 
                             
                 except:
@@ -235,7 +226,7 @@ class AslMediaPipePointNetDemo(Node):
 
         # DISPLAY
         cv2_bgr_image = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
-        cv2.imshow('asl_mediapipe_pointnet_demo',cv2_bgr_image)
+        cv2.imshow('asl_controller_twist_node',cv2_bgr_image)
         cv2.waitKey(1)                    
         
         # CONVERT BACK TO ROS & PUBLISH
@@ -246,14 +237,14 @@ class AslMediaPipePointNetDemo(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    asl_mediapipe_pointnet_demo = AslMediaPipePointNetDemo()
+    asl_controller_twist_node = AslControllerTwistNode()
 
-    rclpy.spin(asl_mediapipe_pointnet_demo)
+    rclpy.spin(asl_controller_twist_node)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    asl_mediapipe_pointnet_demo.destroy_node()
+    asl_controller_twist_node.destroy_node()
     rclpy.shutdown()
 
 

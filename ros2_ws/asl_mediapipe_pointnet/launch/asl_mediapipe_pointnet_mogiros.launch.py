@@ -66,10 +66,16 @@ def generate_launch_description():
     )
     asl_controller_node = Node(
         package='asl_mediapipe_pointnet',
-        executable='asl_mediapipe_pointnet_demo',
+        executable='asl_controller_twist_node',
         name="my_asl_controller",
-        parameters=[{"model_path":LaunchConfiguration("model_path")},{"model_name":LaunchConfiguration("model_name")}],
-        remappings=[("image_raw", "my_input_image"),("cmd_vel", "cmd_vel")]            
+        parameters=[
+           {"model_path":LaunchConfiguration("model_path")},
+           {"model_name":LaunchConfiguration("model_name")}
+        ],
+        remappings=[
+           ("image_raw", "my_input_image"),
+           ("asl_controller/cmd_vel", "cmd_vel")
+        ]
     )    
 
     # Launch rviz

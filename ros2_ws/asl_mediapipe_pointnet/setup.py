@@ -23,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'asl_mediapipe_pointnet_demo = asl_mediapipe_pointnet.asl_mediapipe_pointnet_demo:main', 
+            'asl_controller_twist_node = asl_mediapipe_pointnet.asl_controller_twist_node:main', 
+            'asl_controller_pose_node = asl_mediapipe_pointnet.asl_controller_pose_node:main', 
         ],
     },
 )
