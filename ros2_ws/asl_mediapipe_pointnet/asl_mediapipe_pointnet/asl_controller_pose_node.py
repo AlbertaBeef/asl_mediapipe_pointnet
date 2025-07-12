@@ -255,18 +255,20 @@ class AslControllerPoseNode(Node):
                         target_pose_msg.pose.position.z = trans.transform.translation.z
                         target_pose_msg.pose.orientation = trans.transform.rotation
                         
-                        if self.actionDetected == "A : Advance":
-                          target_pose_msg.pose.position.x = target_pose_msg.pose.position.x + 0.02 #2.0
-                        if self.actionDetected == "B : Back-Up":
-                          target_pose_msg.pose.position.x = target_pose_msg.pose.position.x - 0.02 #2.0
                         if self.actionDetected == "U : Up":
                           target_pose_msg.pose.position.z = target_pose_msg.pose.position.z + 0.02 #2.0
                         if self.actionDetected == "D : Down":
                           target_pose_msg.pose.position.z = target_pose_msg.pose.position.z - 0.02 #2.0
-                        if self.actionDetected == "L : Left":
-                          target_pose_msg.pose.position.y = target_pose_msg.pose.position.y - 0.02 #2.0
-                        if self.actionDetected == "R : Right":
+
+                        if self.actionDetected == "A : Advance":
                           target_pose_msg.pose.position.y = target_pose_msg.pose.position.y + 0.02 #2.0
+                        if self.actionDetected == "B : Back-Up":
+                          target_pose_msg.pose.position.y = target_pose_msg.pose.position.y - 0.02 #2.0
+
+                        if self.actionDetected == "L : Left":
+                          target_pose_msg.pose.position.x = target_pose_msg.pose.position.x - 0.02 #2.0
+                        if self.actionDetected == "R : Right":
+                          target_pose_msg.pose.position.x = target_pose_msg.pose.position.x + 0.02 #2.0
 
                         self.publisher4_.publish(target_pose_msg)
                         self.get_logger().info(f"Published target  pose: {target_pose_msg.pose.position}")
