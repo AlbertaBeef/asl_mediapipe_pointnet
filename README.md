@@ -56,12 +56,12 @@ The packages provides two controllers:
       - generates Pose messages for current position and target position
       - communicates with MoveIt2 to plan/execute robotic arm movement
       
-Launch the asl_mediapipe_pointnet_twist_node with v4l2_camera only: (requires an additional camera source)
+Launch the asl_mediapipe_pointnet_twist node with v4l2_camera only: (requires an additional camera source)
 
    - ros2 run asl_mediapipe_pointnet asl_mediapipe_pointnet_twist_node
 
 
-Launch the asl_mediapipe_pointnet node with v4l2_camera and turtlesim nodes:
+Launch the asl_controller_twist node with v4l2_camera and turtlesim nodes:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_turtlesim_launch.py
 
@@ -71,19 +71,19 @@ Launch the asl_mediapipe_pointnet node with v4l2_camera and turtlesim nodes:
 
 ## Use as ROS2 Node with Gazebo simulator
 
-Launch the asl_mediapipe_pointnet node with MOGI-ROS vehicle:
+Launch the asl_controller_twist node with MOGI-ROS vehicle:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mogiros.launch.py
 
 ![](images/asl_mediapipe_pointnet_demo01_ros2_gazebo.gif)
 
-Launch the asl_mediapipe_pointnet node with ROSMASTER-X3 vehicle:
+Launch the asl_controller_twist node with ROSMASTER-X3 vehicle:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_rosmaster.launch.py
 
 ![](images/asl_mediapipe_pointnet_demo02_ros2_gazebo_rosmaster.gif)
 
-Launch the asl_mediapipe_pointnet node with MYCOBOT-280 robotic arm:
+Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
 
