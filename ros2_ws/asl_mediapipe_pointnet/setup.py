@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'asl_controller_twist_node = asl_mediapipe_pointnet.asl_controller_twist_node:main', 
+            'asl_controller_joints_node = asl_mediapipe_pointnet.asl_controller_joints_node:main', 
             'asl_controller_pose_node = asl_mediapipe_pointnet.asl_controller_pose_node:main', 
         ],
     },

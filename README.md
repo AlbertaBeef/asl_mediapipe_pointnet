@@ -45,12 +45,22 @@ Build and Install the ROS2 packages:
    - colcon build
    - source install/setup.bash
 
-The packages provides two controllers:
+   - cd ros2_ws/asl_moveit_demos
+   - colcon build
+   - source install/setup.bash
+
+The asl_mediapipe_pointnet package provides three controllers:
 
    - asl_controller_twist_node : used to control a vehicle
       - recognized hand signs (A:advance, B:back-up, L:turn-left, R:turn-right)
       - generates Twist messages
-   - asl_controller_pose_node : used to control a robotic arm
+
+   - asl_controller_joints_node : used to control the MOGI-ROS robotic arm
+      - recognized left hand signs (A:advance, B:back-up, L:left, R:right, U:up, D:down)
+      - recognized right hand signs (A:close-gripper, B:open-gripper)
+      - generates JointTrajectory messages
+      
+   - asl_controller_pose_node : used to control the MYCOBOT-280 robotic arm
       - recognized hand signs (A:advance, B:back-up, L:left, R:right, U:up, D:down)
       - reads current pose of robotic arm (position of gripper wrt base)
       - generates Pose messages for current position and target position
@@ -69,7 +79,7 @@ Launch the asl_controller_twist node with v4l2_camera and turtlesim nodes:
 
 
 
-## Use as ROS2 Node with Gazebo simulator
+## Use as ROS2 Node to control Vehicules in Gazebo simulator
 
 Launch the asl_controller_twist node with MOGI-ROS vehicle:
 
@@ -83,8 +93,18 @@ Launch the asl_controller_twist node with ROSMASTER-X3 vehicle:
 
 ![](images/asl_mediapipe_pointnet_demo02_ros2_gazebo_rosmaster.gif)
 
+
+## Use as ROS2 Node to control Robotic Arms in Gazebo simulator
+
 Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
 
+   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
+
+![](images/asl_mediapipe_pointnet_demo04_ros2_gazebo_mogiros_arm.gif)
+
+Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
+
+   - moveit &
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
 
 ![](images/asl_mediapipe_pointnet_demo03_ros2_gazebo_mycobot.gif)
