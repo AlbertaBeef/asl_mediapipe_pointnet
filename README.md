@@ -85,11 +85,25 @@ Launch the asl_controller_twist node with MOGI-ROS vehicle:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mogiros.launch.py
 
+Control Vehicle with Hand Signs
+
+   - A : Advance
+   - B : Backup
+   - L : Turn Left
+   - R : Turn Right
+
 ![](images/asl_mediapipe_pointnet_demo01_ros2_gazebo.gif)
 
 Launch the asl_controller_twist node with ROSMASTER-X3 vehicle:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_rosmaster.launch.py
+
+Control Vehicle with Hand Signs
+
+   - A : Advance
+   - B : Backup
+   - L : Turn Left
+   - R : Turn Right
 
 ![](images/asl_mediapipe_pointnet_demo02_ros2_gazebo_rosmaster.gif)
 
@@ -100,12 +114,35 @@ Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
 
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
 
+Control Robotic Arm with Hand Signs
+
+   - L : Move Left
+   - R : Move Right
+   - A : Move Forward
+   - B : Move Backward
+   - U : Move Up
+   - D : Move Down
+
 ![](images/asl_mediapipe_pointnet_demo04_ros2_gazebo_mogiros_arm.gif)
 
 Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
 
    - moveit &
    - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
+
+Control Robotic Arm with Left/Right Hands:
+
+   - Left Hand
+      - L : Turn Arm Left
+      - R : Turn Arm Right
+      - A : Advance Arm (shoulder joint)
+      - B : Backup Arm (shoulder joint)
+      - U : Lift Arm (elbow joint)
+      - D : Lower Arm (elbow joint)
+
+   - Right Hand
+      - A : Close Gripper
+      - B : Open Gripper
 
 ![](images/asl_mediapipe_pointnet_demo03_ros2_gazebo_mycobot.gif)
 
