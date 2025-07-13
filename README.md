@@ -83,7 +83,7 @@ Launch the asl_controller_twist node with v4l2_camera and turtlesim nodes:
 
 Launch the asl_controller_twist node with MOGI-ROS vehicle:
 
-   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mogiros.launch.py
+   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mogiros_car.launch.py
 
 Control Vehicle with Hand Signs
 
@@ -110,25 +110,9 @@ Control Vehicle with Hand Signs
 
 ## Use as ROS2 Node to control Robotic Arms in Gazebo simulator
 
-Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
+Launch the asl_controller_pose node with MOGI-ROS simple robotic arm:
 
-   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
-
-Control Robotic Arm with Hand Signs
-
-   - L : Move Left
-   - R : Move Right
-   - A : Move Forward
-   - B : Move Backward
-   - U : Move Up
-   - D : Move Down
-
-![](images/asl_mediapipe_pointnet_demo04_ros2_gazebo_mogiros_arm.gif)
-
-Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
-
-   - moveit &
-   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
+   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mogiros_arm.launch.py
 
 Control Robotic Arm with Left/Right Hands:
 
@@ -143,6 +127,23 @@ Control Robotic Arm with Left/Right Hands:
    - Right Hand
       - A : Close Gripper
       - B : Open Gripper
+
+![](images/asl_mediapipe_pointnet_demo04_ros2_gazebo_mogiros_arm.gif)
+
+Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
+
+   - moveit &
+   - ros2 launch asl_mediapipe_pointnet asl_mediapipe_pointnet_mycobot.launch.py
+
+
+Control Robotic Arm with Hand Signs
+
+   - L : Move Left
+   - R : Move Right
+   - A : Move Forward
+   - B : Move Backward
+   - U : Move Up
+   - D : Move Down
 
 ![](images/asl_mediapipe_pointnet_demo03_ros2_gazebo_mycobot.gif)
 
