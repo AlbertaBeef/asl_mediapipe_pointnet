@@ -23,6 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'usbcam_publisher = asl_mediapipe_pointnet.usbcam_publisher:main',        
+            'usbcam_subscriber = asl_mediapipe_pointnet.usbcam_subscriber:main',          
             'asl_controller_twist_node = asl_mediapipe_pointnet.asl_controller_twist_node:main', 
             'asl_controller_joints_node = asl_mediapipe_pointnet.asl_controller_joints_node:main', 
             'asl_controller_pose_node = asl_mediapipe_pointnet.asl_controller_pose_node:main', 

@@ -84,6 +84,11 @@ class AslControllerTwistNode(Node):
         self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
         #self.model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
 
+        # use_imshow
+        self.declare_parameter("use_imshow", True)
+        self.use_imshow = self.get_parameter('use_imshow').value          
+        self.get_logger().info('Use imshow : "%s"' % self.use_imshow)
+        
         # Parameters (for text overlay)
         self.scale = 1.0
         self.text_fontType = cv2.FONT_HERSHEY_SIMPLEX
@@ -224,13 +229,14 @@ class AslControllerTwistNode(Node):
                     #print("[ERROR] Exception occured during ASL classification ...")
                     self.get_logger().warning('Exception occured during ASL Classification ...') 
 
-        # DISPLAY
-        cv2_bgr_image = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
-        cv2.imshow('asl_controller_twist_node',cv2_bgr_image)
-        cv2.waitKey(1)                    
+        if self.use_imshow == True:
+            # DISPLAY
+            cv2_bgr_image = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
+            cv2.imshow('asl_controller_twist_node',cv2_bgr_image)
+            cv2.waitKey(1)                    
         
         # CONVERT BACK TO ROS & PUBLISH
-        image_ros = bridge.cv2_to_imgmsg(cv2_image, encoding="rgb8")        
+        image_ros = bridge.cv2_to_imgmsg(annotated_image, encoding="rgb8")        
         self.publisher1_.publish(image_ros)
 
 
