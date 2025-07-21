@@ -61,6 +61,16 @@ class AslControllerPoseNode(Node):
         self.subscriber1_ = self.create_subscription(Image,'image_raw',self.listener_callback,10)
         self.subscriber1_  # prevent unused variable warning
         self.publisher1_ = self.create_publisher(Image, 'asl_controller/image_annotated', 10)
+        # Publisher for PoseStamped
+        #self.publisher2_ = self.create_publisher(PoseStamped, '/arm_pose', 10)
+        self.publisher3_ = self.create_publisher(PoseStamped, 'asl_controller/current_pose', 10)        
+        self.publisher4_ = self.create_publisher(PoseStamped, 'asl_controller/target_pose', 10)        
+
+
+        # use_imshow
+        self.declare_parameter("use_imshow", True)
+        self.use_imshow = self.get_parameter('use_imshow').value          
+        self.get_logger().info('Use imshow : "%s"' % self.use_imshow)
         
         # Open MediaPipe Hands model
         self.mp_hands = mp.solutions.hands
@@ -80,27 +90,12 @@ class AslControllerPoseNode(Node):
         self.model_name = self.get_parameter('model_name').value
         self.get_logger().info('Model path/name : "%s"' % os.path.join(self.model_path, self.model_name))      
         sys.path.append(self.model_path)
-        self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
-        #self.model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
+        self.asl_model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
+        #self.asl_model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
 
-        # use_imshow
-        self.declare_parameter("use_imshow", True)
-        self.use_imshow = self.get_parameter('use_imshow').value          
-        self.get_logger().info('Use imshow : "%s"' % self.use_imshow)
-        
         # Sign Detection status
         self.asl_sign = ""
         self.actionDetected = ""        
-
-        # Parameters (for text overlay)
-        self.scale = 1.0
-        self.text_fontType = cv2.FONT_HERSHEY_SIMPLEX
-        self.text_fontSize = 0.75*self.scale
-        self.text_color    = (255,0,0)
-        self.text_lineSize = max( 1, int(2*self.scale) )
-        self.text_lineType = cv2.LINE_AA
-        self.text_x = int(10*self.scale)
-        self.text_y = int(30*self.scale)        
 
         # Declare frames as parameters (can be overridden at launch)
         self.declare_parameter('source_frame', 'base_link')
@@ -113,10 +108,17 @@ class AslControllerPoseNode(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        # Publisher for PoseStamped
-        #self.publisher2_ = self.create_publisher(PoseStamped, '/arm_pose', 10)
-        self.publisher3_ = self.create_publisher(PoseStamped, 'asl_controller/current_pose', 10)        
-        self.publisher4_ = self.create_publisher(PoseStamped, 'asl_controller/target_pose', 10)        
+        # Additional Settings (for text overlay)
+        self.scale = 1.0
+        self.text_fontType = cv2.FONT_HERSHEY_SIMPLEX
+        self.text_fontSize = 0.75*self.scale
+        self.text_color    = (255,0,0)
+        self.text_lineSize = max( 1, int(2*self.scale) )
+        self.text_lineType = cv2.LINE_AA
+        self.text_x = int(10*self.scale)
+        self.text_y = int(30*self.scale)        
+
+        self.get_logger().info("Initialization Successful")
 
 
     def listener_callback(self, msg):
@@ -138,7 +140,6 @@ class AslControllerPoseNode(Node):
             #self.get_logger().info('Detected Handedness: "%s"' % results.multi_handedness)
             #self.get_logger().info('Detected Landmarks : "%s"' % results.multi_hand_landmarks)
                 
-            #for hand_landmarks in results.multi_hand_landmarks:
             for hand_id in range(len(results.multi_hand_landmarks)):
                 hand_handedness = results.multi_handedness[hand_id]
                 hand_landmarks = results.multi_hand_landmarks[hand_id]
@@ -152,18 +153,15 @@ class AslControllerPoseNode(Node):
                 if handedness == "Left":
                     hand_x = 10
                     hand_y = 30
-                    #hand_color = (0, 0, 255) # RGB : Blue
-                    hand_color = (0, 255, 0) # RBG : Green
+                    hand_color = (0, 255, 0) # RGB : Green
                     hand_msg = 'LEFT='
                 if handedness == "Right":
-                    hand_x = image_width-128
+                    hand_x = image_width-256
                     hand_y = 30
-                    #hand_color = (0, 255, 0) # RBG : Green
-                    #hand_color = (0, 0, 255) # RGB : Blue
                     hand_color = (255, 0, 0) # RGB : Red
                     hand_msg = 'RIGHT='
                           
-                # Determine bounding box of hand
+                # Determine point cloud of hand
                 points_raw=[]
                 for lm in hand_landmarks.landmark:
                     points_raw.append([lm.x, lm.y, lm.z])
@@ -197,43 +195,61 @@ class AslControllerPoseNode(Node):
                 self.actionDetected = ""
                 try:
                     pointst = torch.tensor([points_norm]).float().to(device)
-                    label = self.model(pointst)
+                    label = self.asl_model(pointst)
                     label = label.detach().cpu().numpy()
                     #self.get_logger().info('Detected Labels: "%s"' % label)                    
                     asl_id = np.argmax(label)
                     asl_sign = list(char2int.keys())[list(char2int.values()).index(asl_id)]                
                     #self.get_logger().info('Detected Sign: "%s"' % asl_sign)
-                    if handedness == "Left":
-                        self.get_logger().info('Left Hand Sign: "%s"' % asl_sign)
-                    if handedness == "Right":
-                        self.get_logger().info('Right Hand Sign: "%s"' % asl_sign)
 
-                    #asl_text = '['+str(asl_id)+']='+asl_sign
                     asl_text = hand_msg+asl_sign
                     cv2.putText(annotated_image,asl_text,
-                    	(hand_x,hand_y),
-                    	self.text_fontType,self.text_fontSize,
-                    	hand_color,self.text_lineSize,self.text_lineType)
-        
-                    # Define action
-                    if asl_sign == 'A':
-                      self.actionDetected = "A : Advance"
-                    if asl_sign == 'B':
-                      self.actionDetected = "B : Back-Up"
-                    if asl_sign == 'L':
-                      self.actionDetected = "L : Left"
-                    if asl_sign == 'R':
-                      self.actionDetected = "R : Right"
-                    if asl_sign == 'U':
-                      self.actionDetected = "U : Up"
-                    if asl_sign == 'D':
-                      self.actionDetected = "D : Down"
+                        (hand_x,hand_y),
+                        self.text_fontType,self.text_fontSize,
+                        hand_color,self.text_lineSize,self.text_lineType)
+
+                    if handedness == "Left":
+                        # Define action
+                        if asl_sign == 'A':
+                          self.actionDetected = "A : Advance"
+                        if asl_sign == 'B':
+                          self.actionDetected = "B : Back-Up"
+                        if asl_sign == 'L':
+                          self.actionDetected = "L : Left"
+                        if asl_sign == 'R':
+                          self.actionDetected = "R : Right"
+                        if asl_sign == 'U':
+                          self.actionDetected = "U : Up"
+                        if asl_sign == 'D':
+                          self.actionDetected = "D : Down"
+
+                        action_text = '['+self.actionDetected+']'
+                        cv2.putText(annotated_image,action_text,
+                            (hand_x,hand_y*2),
+                            self.text_fontType,self.text_fontSize,
+                            hand_color,self.text_lineSize,self.text_lineType)
+
+                        self.get_logger().info(f"{asl_text} => {action_text}")
+
+ 
+                    if handedness == "Right":
+                        # Define action
+                        # ... TBD ...
+
+                        action_text = '['+self.actionDetected+']'
+                        cv2.putText(annotated_image,action_text,
+                            (hand_x,hand_y*2),
+                            self.text_fontType,self.text_fontSize,
+                            hand_color,self.text_lineSize,self.text_lineType)
+
+                        self.get_logger().info(f"{asl_text} => {action_text}")
+
 
                 except:
                     #print("[ERROR] Exception occured during ASL classification ...")
                     self.get_logger().warning('Exception occured during ASL Classification ...') 
 
-                if self.actionDetected != "":
+                if handedness == "Left" and self.actionDetected != "":
                     try:
                         now = rclpy.time.Time()
                         trans: TransformStamped = self.tf_buffer.lookup_transform(
@@ -282,12 +298,11 @@ class AslControllerPoseNode(Node):
                     except Exception as e:
                         self.get_logger().warn(f"TF lookup failed: {e}")
 
-        if self.use_imshow == "Yes":             
+        if self.use_imshow == True:
             # DISPLAY
             cv2_bgr_image = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
             cv2.imshow('asl_controller_pose_node',cv2_bgr_image)
             cv2.waitKey(1)                    
-
         
         # CONVERT BACK TO ROS & PUBLISH
         image_ros = bridge.cv2_to_imgmsg(annotated_image, encoding="rgb8")        

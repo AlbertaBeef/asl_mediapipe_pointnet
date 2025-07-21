@@ -19,13 +19,13 @@ import os
 import rclpy
 from rclpy.node import Node
 
-#from std_msgs.msg import String
-from geometry_msgs.msg import Twist
-
 from sensor_msgs.msg import Image
 # import CV BRIDGE
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
+
+#from std_msgs.msg import String
+from geometry_msgs.msg import Twist
 
 # MediaPipe references : 
 #   https://google.github.io/mediapipe/solutions/hands.html
@@ -61,8 +61,14 @@ class AslControllerTwistNode(Node):
         self.subscriber1_ = self.create_subscription(Image,'image_raw',self.listener_callback,10)
         self.subscriber1_  # prevent unused variable warning
         self.publisher1_ = self.create_publisher(Image, 'asl_controller/image_annotated', 10)
+        # Create publisher for velocity command (twist)
         self.publisher2_ = self.create_publisher(Twist, 'asl_controller/cmd_vel', 10)        
-        
+
+        # use_imshow
+        self.declare_parameter("use_imshow", True)
+        self.use_imshow = self.get_parameter('use_imshow').value          
+        self.get_logger().info('Use imshow : "%s"' % self.use_imshow)
+
         # Open MediaPipe Hands model
         self.mp_hands = mp.solutions.hands
         #self.hands = self.mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -78,18 +84,17 @@ class AslControllerTwistNode(Node):
         self.declare_parameter("model_path", "/root/asl_mediapipe_pointnet/model")
         self.declare_parameter("model_name", "point_net_1.pth")
         self.model_path = self.get_parameter('model_path').value        
-        self.model_name = self.get_parameter('model_name').value  
+        self.model_name = self.get_parameter('model_name').value
         self.get_logger().info('Model path/name : "%s"' % os.path.join(self.model_path, self.model_name))      
         sys.path.append(self.model_path)
-        self.model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
-        #self.model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
+        self.asl_model = torch.load(os.path.join(self.model_path, self.model_name),weights_only=False,map_location=device)
+        #self.asl_model.eval() # set dropout and batch normalization layers to evaluation mode before running inference
 
-        # use_imshow
-        self.declare_parameter("use_imshow", True)
-        self.use_imshow = self.get_parameter('use_imshow').value          
-        self.get_logger().info('Use imshow : "%s"' % self.use_imshow)
-        
-        # Parameters (for text overlay)
+        # Sign Detection status
+        self.asl_sign = ""
+        self.actionDetected = ""        
+
+        # Additional Settings (for text overlay)
         self.scale = 1.0
         self.text_fontType = cv2.FONT_HERSHEY_SIMPLEX
         self.text_fontSize = 0.75*self.scale
@@ -98,6 +103,8 @@ class AslControllerTwistNode(Node):
         self.text_lineType = cv2.LINE_AA
         self.text_x = int(10*self.scale)
         self.text_y = int(30*self.scale)        
+
+        self.get_logger().info("Initialization Successful")
 
 
     def listener_callback(self, msg):
@@ -132,18 +139,15 @@ class AslControllerTwistNode(Node):
                 if handedness == "Left":
                     hand_x = 10
                     hand_y = 30
-                    #hand_color = (0, 0, 255) # RGB : Blue
-                    hand_color = (0, 255, 0) # RBG : Green
+                    hand_color = (0, 255, 0) # RGB : Green
                     hand_msg = 'LEFT='
                 if handedness == "Right":
-                    hand_x = image_width-128
+                    hand_x = image_width-256
                     hand_y = 30
-                    #hand_color = (0, 255, 0) # RBG : Green
-                    #hand_color = (0, 0, 255) # RGB : Blue
                     hand_color = (255, 0, 0) # RGB : Red
                     hand_msg = 'RIGHT='
                           
-                # Determine bounding box of hand
+                # Determine point cloud of hand
                 points_raw=[]
                 for lm in hand_landmarks.landmark:
                     points_raw.append([lm.x, lm.y, lm.z])
@@ -173,61 +177,93 @@ class AslControllerTwistNode(Node):
                              int((points_raw[hc[1]][1]) * image_height)), 
                              hand_color, 4)
 	
+                asl_sign = ""
+                self.actionDetected = ""
                 try:
                     pointst = torch.tensor([points_norm]).float().to(device)
-                    label = self.model(pointst)
+                    label = self.asl_model(pointst)
                     label = label.detach().cpu().numpy()
                     #self.get_logger().info('Detected Labels: "%s"' % label)                    
                     asl_id = np.argmax(label)
                     asl_sign = list(char2int.keys())[list(char2int.values()).index(asl_id)]                
                     #self.get_logger().info('Detected Sign: "%s"' % asl_sign)
-                    if handedness == "Left":
-                        self.get_logger().info('Left Hand Sign: "%s"' % asl_sign)
-                    if handedness == "Right":
-                        self.get_logger().info('Right Hand Sign: "%s"' % asl_sign)
 
-                    #asl_text = '['+str(asl_id)+']='+asl_sign
                     asl_text = hand_msg+asl_sign
                     cv2.putText(annotated_image,asl_text,
-                    	(hand_x,hand_y),
-                    	self.text_fontType,self.text_fontSize,
-                    	hand_color,self.text_lineSize,self.text_lineType)
-        
-                    self.actionDetected = ""
-                    # Create message
-                    msg = Twist()
-                    msg.linear.x = 0.0
-                    msg.linear.y = 0.0
-                    msg.linear.z = 0.0
-                    msg.angular.x = 0.0
-                    msg.angular.y = 0.0
-                    msg.angular.z = 0.0
-                    if asl_sign == 'A':
-                      self.actionDetected = "A : Advance"
-                      # Modify message to advance (+ve value on x axis)
-                      msg.linear.x = 2.0
-                    if asl_sign == 'B':
-                      self.actionDetected = "B : Back-Up"
-                      # Modify message to backup (-ve value on x axis)
-                      msg.linear.x = -2.0
-                    if asl_sign == 'L':
-                      self.actionDetected = "L : Turn Left"
-                      # Modify message to advance (+ve value on x axis)
-                      msg.linear.x = 2.0
-                      # Modify message to turn left (+ve value on z axis)
-                      msg.angular.z = 2.0
-                    if asl_sign == 'R':
-                      self.actionDetected = "R : Turn Right"
-                      # Modify message to advance (+ve value on x axis)
-                      msg.linear.x = 2.0
-                      # Modify message to turn right (-ve value on z axis)
-                      msg.angular.z = -2.0
-                    self.publisher2_.publish(msg)
+                        (hand_x,hand_y),
+                        self.text_fontType,self.text_fontSize,
+                        hand_color,self.text_lineSize,self.text_lineType)
 
-                            
+                    if handedness == "Left":
+                        # Define action
+                        if asl_sign == 'A':
+                          self.actionDetected = "A : Advance"
+                        if asl_sign == 'B':
+                          self.actionDetected = "B : Back-Up"
+                        if asl_sign == 'L':
+                          self.actionDetected = "L : Turn Left"
+                        if asl_sign == 'R':
+                          self.actionDetected = "R : Turn Right"
+
+                        action_text = '['+self.actionDetected+']'
+                        cv2.putText(annotated_image,action_text,
+                            (hand_x,hand_y*2),
+                            self.text_fontType,self.text_fontSize,
+                            hand_color,self.text_lineSize,self.text_lineType)
+
+                        self.get_logger().info(f"{asl_text} => {action_text}")
+
+ 
+                    if handedness == "Right":
+                        # Define action
+                        # ... TBD ...
+
+                        action_text = '['+self.actionDetected+']'
+                        cv2.putText(annotated_image,action_text,
+                            (hand_x,hand_y*2),
+                            self.text_fontType,self.text_fontSize,
+                            hand_color,self.text_lineSize,self.text_lineType)
+
+                        self.get_logger().info(f"{asl_text} => {action_text}")
+
+
                 except:
                     #print("[ERROR] Exception occured during ASL classification ...")
                     self.get_logger().warning('Exception occured during ASL Classification ...') 
+
+                if handedness == "Left" and self.actionDetected != "":
+                    try:
+                        # Create message
+                        msg = Twist()
+                        msg.linear.x = 0.0
+                        msg.linear.y = 0.0
+                        msg.linear.z = 0.0
+                        msg.angular.x = 0.0
+                        msg.angular.y = 0.0
+                        msg.angular.z = 0.0
+
+                        if self.actionDetected == "A : Advance":
+                          # Modify message to advance (+ve value on x axis)
+                          msg.linear.x = 2.0
+                        if self.actionDetected == "B : Back-Up":
+                          # Modify message to backup (-ve value on x axis)
+                          msg.linear.x = -2.0
+
+                        if self.actionDetected == "L : Turn Left":
+                          # Modify message to advance (+ve value on x axis)
+                          msg.linear.x = 2.0
+                          # Modify message to turn left (+ve value on z axis)
+                          msg.angular.z = 2.0
+                        if self.actionDetected == "R : Turn Right":
+                          # Modify message to advance (+ve value on x axis)
+                          msg.linear.x = 2.0
+                          # Modify message to turn right (-ve value on z axis)
+                          msg.angular.z = -2.0
+
+                        self.publisher2_.publish(msg)
+
+                    except Exception as e:
+                        self.get_logger().warn(f"Error publishing twist message: {e}")
 
         if self.use_imshow == True:
             # DISPLAY
