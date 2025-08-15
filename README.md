@@ -6,16 +6,16 @@ ASL Recognition using MediaPipe and Pointnet.
 
 References:
 
-- Documentation [google](https://google.github.io/mediapipe/solutions/hands.html)
+- Google Documentation [hands](https://google.github.io/mediapipe/solutions/hands.html)
 
 
 ## PointNet (for Hands)
 
-References:
+References by Edward Roe:
 
-- Article [medium](https://medium.com/@er_95882/asl-recognition-using-pointnet-and-mediapipe-f2efda78d089)
-- Dataset [kaggle](https://www.kaggle.com/datasets/ayuraj/asl-dataset)
-- Source [github](https://github.com/e-roe/pointnet_hands/tree/main)
+   - Medium Article [ASL Recognition using PointNet and MediaPipe](https://medium.com/@er_95882/asl-recognition-using-pointnet-and-mediapipe-f2efda78d089)
+   - Kaggle Dataset [American Sign Language Dataset](https://www.kaggle.com/datasets/ayuraj/asl-dataset)
+   - GitHub Source [pointnet_hands](https://github.com/e-roe/pointnet_hands/tree/main)
 
 The PointNet model can be re-trained based on the previous references.
 
@@ -59,13 +59,13 @@ The asl_mediapipe_pointnet package provides three controllers:
       - recognized left hand signs (A:advance, B:back-up, L:left, R:right, U:up, D:down)
       - recognized right hand signs (A:close-gripper, B:open-gripper)
       - generates JointTrajectory messages
-      
+
    - asl_controller_pose_node : used to control the MYCOBOT-280 robotic arm
       - recognized hand signs (A:advance, B:back-up, L:left, R:right, U:up, D:down)
       - reads current pose of robotic arm (position of gripper wrt base)
       - generates Pose messages for current position and target position
       - communicates with MoveIt2 to plan/execute robotic arm movement
-      
+
 Launch the asl_mediapipe_pointnet_twist node with v4l2_camera only: (requires an additional camera source)
 
    - ros2 run asl_mediapipe_pointnet asl_mediapipe_pointnet_twist_node
@@ -147,3 +147,25 @@ Control Robotic Arm with Hand Signs
 
 ![](images/asl_mediapipe_pointnet_demo03_ros2_gazebo_mycobot.gif)
 
+
+## References
+
+The Complete Guide to Docker for ROS 2 Jazzy Projects
+   - https://automaticaddison.com/the-complete-guide-to-docker-for-ros-2-jazzy-projects/
+
+Automatic Addison on-line Tutorials:
+   - https://automaticaddison.com/tutorials
+   - https://github.com/automaticaddison/mycobot_ros2 (branch=jazzy)
+   - https://github.com/automaticaddison/yahboom_rosmaster
+
+MOGI-ROS on-line Tutorials:
+   - https://github.com/MOGI-ROS/Week-1-2-Introduction-to-ROS2
+   - https://github.com/MOGI-ROS/Week-3-4-Gazebo-basics
+   - https://github.com/MOGI-ROS/Week-5-6-Gazebo-sensors
+   - https://github.com/MOGI-ROS/Week-7-8-ROS2-Navigation
+   - https://github.com/MOGI-ROS/Week-9-10-Simple-arm
+
+ASL Recognition using PointNet (by Edward Roe):
+   - Medium Article [ASL Recognition using PointNet and MediaPipe](https://medium.com/@er_95882/asl-recognition-using-pointnet-and-mediapipe-f2efda78d089)
+   - Kaggle Dataset [American Sign Language Dataset](https://www.kaggle.com/datasets/ayuraj/asl-dataset)
+   - GitHub Source [pointnet_hands](https://github.com/e-roe/pointnet_hands/tree/main)
