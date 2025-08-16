@@ -29,9 +29,9 @@ def get_video_dev_by_name(src):
                 return dev
                 
                 
-class CameraPublisherNode(Node):
+class UsbCamPublisherNode(Node):
     def __init__(self):
-        super().__init__('camera_publisher')
+        super().__init__('usbcam_publisher_node')
         self.publisher_ = self.create_publisher(Image, 'image_raw', 10)
         self.timer_ = self.create_timer(1.0 / 30, self.publish_frame)  # 30 FPS
         
@@ -69,10 +69,10 @@ class CameraPublisherNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    camera_publisher = CameraPublisherNode()
-    rclpy.spin(camera_publisher)
+    usbcam_publisher_node = UsbCamPublisherNode()
+    rclpy.spin(usbcam_publisher_node)
 
-    camera_publisher.destroy_node()
+    usbcam_publisher_node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

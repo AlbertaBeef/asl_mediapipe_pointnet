@@ -7,9 +7,9 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
-class VideoSubscriberNode(Node):
+class UsbCamSubscriberNode(Node):
     def __init__(self):
-        super().__init__('video_subscriber')
+        super().__init__('usbcam_subscriber_node')
         self.subscription_ = self.create_subscription(
             Image,
             'image_raw',
@@ -18,6 +18,11 @@ class VideoSubscriberNode(Node):
         )
         self.cv_bridge = CvBridge()
 
+        # Image Viewer name
+        self.declare_parameter("viewer_name", "Image Viewer")
+        self.viewer_name = self.get_parameter('viewer_name').value
+        self.get_logger().info('Image Viewer name : "%s"' % self.viewer_name)
+
     def process_video(self, msg):
         try:
             # Convert the received image message to an OpenCV format
@@ -25,17 +30,17 @@ class VideoSubscriberNode(Node):
 
             # Display the frame
             frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            cv2.imshow('Video', frame_bgr)
+            cv2.imshow(self.viewer_name, frame_bgr)
             cv2.waitKey(1)
         except Exception as e:
             self.get_logger().error(f'Error processing video frame: {str(e)}')
 
 def main(args=None):
     rclpy.init(args=args)
-    video_subscriber = VideoSubscriberNode()
-    rclpy.spin(video_subscriber)
+    usbcam_subscriber_node = UsbCamSubscriberNode()
+    rclpy.spin(usbcam_subscriber_node)
 
-    video_subscriber.destroy_node()
+    usbcam_subscriber_node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
