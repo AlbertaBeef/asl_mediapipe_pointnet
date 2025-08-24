@@ -64,6 +64,11 @@ class AslControllerTwistNode(Node):
         # Create publisher for velocity command (twist)
         self.publisher2_ = self.create_publisher(Twist, 'asl_controller/cmd_vel', 10)        
 
+        # verbose
+        self.declare_parameter("verbose", True)
+        self.verbose = self.get_parameter('verbose').value          
+        self.get_logger().info('Verbose : "%s"' % self.verbose)
+
         # use_imshow
         self.declare_parameter("use_imshow", True)
         self.use_imshow = self.get_parameter('use_imshow').value          
@@ -211,7 +216,8 @@ class AslControllerTwistNode(Node):
                             self.text_fontType,self.text_fontSize,
                             hand_color,self.text_lineSize,self.text_lineType)
 
-                        self.get_logger().info(f"{asl_text} => {action_text}")
+                        if self.verbose:
+                            self.get_logger().info(f"{asl_text} => {action_text}")
 
  
                     if handedness == "Right":
@@ -224,7 +230,8 @@ class AslControllerTwistNode(Node):
                             self.text_fontType,self.text_fontSize,
                             hand_color,self.text_lineSize,self.text_lineType)
 
-                        self.get_logger().info(f"{asl_text} => {action_text}")
+                        if self.verbose:
+                            self.get_logger().info(f"{asl_text} => {action_text}")
 
 
                 except:

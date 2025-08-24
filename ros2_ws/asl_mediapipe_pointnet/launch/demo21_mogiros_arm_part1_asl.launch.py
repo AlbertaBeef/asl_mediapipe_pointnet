@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 def generate_launch_description():
@@ -14,7 +14,17 @@ def generate_launch_description():
             "model_name",
             default_value="point_net_1.pth",
             description="Name of PointNet model."
-        ),       
+        ),
+        DeclareLaunchArgument(
+            "verbose",
+            default_value="True",
+            description="Verbose mode."
+        ),               
+        DeclareLaunchArgument(
+            "use_imshow",
+            default_value="False",
+            description="Enable OpenCV display."
+        ),
         Node(
             package='asl_mediapipe_pointnet',
             executable='usbcam_publisher_node',
@@ -28,7 +38,8 @@ def generate_launch_description():
             parameters=[
                {"model_path":LaunchConfiguration("model_path")},
                {"model_name":LaunchConfiguration("model_name")},
-               {"use_imshow":False}
+               {"verbose":PythonExpression(['"', LaunchConfiguration('verbose'), '" == "True"'])},
+               {"use_imshow":PythonExpression(['"', LaunchConfiguration('use_imshow'), '" == "True"'])}
             ],
             remappings=[
                ("image_raw", "usbcam_image"),

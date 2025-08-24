@@ -64,6 +64,11 @@ class AslControllerJointsNode(Node):
         self.publisher2_ = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
         self.publisher3_ = self.create_publisher(JointTrajectory, '/gripper_controller/joint_trajectory', 10)
 
+        # verbose
+        self.declare_parameter("verbose", True)
+        self.verbose = self.get_parameter('verbose').value          
+        self.get_logger().info('Verbose : "%s"' % self.verbose)
+
         # use_imshow
         self.declare_parameter("use_imshow", True)
         self.use_imshow = self.get_parameter('use_imshow').value          
@@ -114,7 +119,12 @@ class AslControllerJointsNode(Node):
         self.arm_trajectory_command.points = [arm_point]
         
         # Publish the message
-        self.get_logger().info(f"Publishing arm joint angles : {self.arm_trajectory_command.points}")
+        if self.verbose:
+            #self.get_logger().info(f"Publishing arm joint angles : {self.arm_trajectory_command.points}")
+            shoulder_pan_joint = self.arm_point.positions[0]
+            shoulder_lift_joint = self.arm_point.positions[1]
+            elbow_joint = self.arm_point.positions[2]
+            self.get_logger().info(f"ShoulderPanJoint={shoulder_pan_joint:+.3f} ShoulderLiftJoint={shoulder_lift_joint:+.3f} ElbowJoint={elbow_joint:+.3f}")
         self.publisher2_.publish(self.arm_trajectory_command)
 
         gripper_point = JointTrajectoryPoint()
@@ -127,7 +137,10 @@ class AslControllerJointsNode(Node):
         self.gripper_trajectory_command.points = [gripper_point]
         
         # Publish the message
-        self.get_logger().info(f"Publishing gripper joint angles : {self.gripper_trajectory_command.points}")
+        if self.verbose:
+            #self.get_logger().info(f"Publishing gripper joint angles : {self.gripper_trajectory_command.points}")
+            finger_joint = self.gripper_point.positions[0]
+            self.get_logger().info(f"FingerJoint={finger_joint:+.3f}")
         self.publisher3_.publish(self.gripper_trajectory_command)
 
         # Additional Settings (for text overlay)
@@ -251,7 +264,8 @@ class AslControllerJointsNode(Node):
                             self.text_fontType,self.text_fontSize,
                             hand_color,self.text_lineSize,self.text_lineType)
 
-                        self.get_logger().info(f"{asl_text} => {action_text}")
+                        if self.verbose:
+                            self.get_logger().info(f"{asl_text} => {action_text}")
 
  
                     if handedness == "Right":
@@ -267,7 +281,8 @@ class AslControllerJointsNode(Node):
                             self.text_fontType,self.text_fontSize,
                             hand_color,self.text_lineSize,self.text_lineType)
 
-                        self.get_logger().info(f"{asl_text} => {action_text}")
+                        if self.verbose:
+                            self.get_logger().info(f"{asl_text} => {action_text}")
 
 
                 except:
@@ -317,9 +332,12 @@ class AslControllerJointsNode(Node):
                         self.arm_point = arm_point
 
                         self.arm_trajectory_command.points = [arm_point]
-        
+
+                        if self.verbose:
+                            #self.get_logger().info(f"Publishing arm joint angles : {self.arm_trajectory_command.points}")
+                            self.get_logger().info(f"ShoulderPanJoint={shoulder_pan_joint:+.3f} ShoulderLiftJoint={shoulder_lift_joint:+.3f} ElbowJoint={elbow_joint:+.3f}")
+
                         # Publish the message
-                        #self.get_logger().info(f"Publishing arm joint angles : {self.arm_trajectory_command.points}")        
                         self.publisher2_.publish(self.arm_trajectory_command)
                         
 
@@ -342,9 +360,12 @@ class AslControllerJointsNode(Node):
                         self.gripper_point = gripper_point
 
                         self.gripper_trajectory_command.points = [gripper_point]
-        
+
+                        if self.verbose:
+                            #self.get_logger().info(f"Publishing gripper joint angles : {self.gripper_trajectory_command.points}")
+                            self.get_logger().info(f"FingerJoint={finger_joint:+.3f}")
+
                         # Publish the message
-                        #self.get_logger().info(f"Publishing gripper joint angles : {self.gripper_trajectory_command.points}")        
                         self.publisher3_.publish(self.gripper_trajectory_command)
 
                     except Exception as e:

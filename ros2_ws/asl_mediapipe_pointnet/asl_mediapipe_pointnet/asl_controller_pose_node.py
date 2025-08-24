@@ -66,6 +66,10 @@ class AslControllerPoseNode(Node):
         self.publisher3_ = self.create_publisher(PoseStamped, 'asl_controller/current_pose', 10)        
         self.publisher4_ = self.create_publisher(PoseStamped, 'asl_controller/target_pose', 10)        
 
+        # verbose
+        self.declare_parameter("verbose", True)
+        self.verbose = self.get_parameter('verbose').value          
+        self.get_logger().info('Verbose : "%s"' % self.verbose)
 
         # use_imshow
         self.declare_parameter("use_imshow", True)
@@ -229,7 +233,8 @@ class AslControllerPoseNode(Node):
                             self.text_fontType,self.text_fontSize,
                             hand_color,self.text_lineSize,self.text_lineType)
 
-                        self.get_logger().info(f"{asl_text} => {action_text}")
+                        if self.verbose:
+                            self.get_logger().info(f"{asl_text} => {action_text}")
 
  
                     if handedness == "Right":
@@ -242,7 +247,8 @@ class AslControllerPoseNode(Node):
                             self.text_fontType,self.text_fontSize,
                             hand_color,self.text_lineSize,self.text_lineType)
 
-                        self.get_logger().info(f"{asl_text} => {action_text}")
+                        if self.verbose:
+                            self.get_logger().info(f"{asl_text} => {action_text}")
 
 
                 except:
@@ -267,7 +273,8 @@ class AslControllerPoseNode(Node):
                         current_pose_msg.pose.orientation = trans.transform.rotation
 
                         self.publisher3_.publish(current_pose_msg)
-                        self.get_logger().info(f"Published current pose: {current_pose_msg.pose.position}")
+                        if self.verbose:
+                            self.get_logger().info(f"Published current pose: {current_pose_msg.pose.position}")
                         
                         target_pose_msg = PoseStamped()
                         target_pose_msg.header = trans.header
@@ -292,7 +299,8 @@ class AslControllerPoseNode(Node):
                           target_pose_msg.pose.position.x = target_pose_msg.pose.position.x + 0.02 #2.0
 
                         self.publisher4_.publish(target_pose_msg)
-                        self.get_logger().info(f"Published target  pose: {target_pose_msg.pose.position}")
+                        if self.verbose:
+                            self.get_logger().info(f"Published target  pose: {target_pose_msg.pose.position}")
                         
 
                     except Exception as e:
