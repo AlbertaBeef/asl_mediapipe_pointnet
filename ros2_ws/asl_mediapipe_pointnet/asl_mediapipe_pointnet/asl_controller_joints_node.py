@@ -242,8 +242,8 @@ class AslControllerJointsNode(Node):
                           self.actionDetected = "R : Right"
                         if asl_sign == 'U':
                           self.actionDetected = "U : Up"
-                        if asl_sign == 'D':
-                          self.actionDetected = "D : Down"
+                        if asl_sign == 'Y':
+                          self.actionDetected = "Y : Down"
 
                         action_text = '['+self.actionDetected+']'
                         cv2.putText(annotated_image,action_text,
@@ -308,7 +308,7 @@ class AslControllerJointsNode(Node):
                             elbow_joint -= 0.01
                             if elbow_joint < -2.35:
                                 elbow_joint = -2.35
-                        if self.actionDetected == "D : Down":
+                        if self.actionDetected == "Y : Down":
                             elbow_joint += 0.01
                             if elbow_joint > +2.35:
                                 elbow_joint = +2.35

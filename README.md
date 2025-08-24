@@ -137,7 +137,7 @@ Control Robotic Arm with Left/Right Hands:
       - A : Advance Arm (shoulder joint)
       - B : Backup Arm (shoulder joint)
       - U : Lift Arm (elbow joint)
-      - D : Lower Arm (elbow joint)
+      - Y : Lower Arm (elbow joint)
 
    - Right Hand
       - A : Close Gripper
@@ -157,7 +157,7 @@ Control Robotic Arm with Hand Signs
    - A : Move Forward
    - B : Move Backward
    - U : Move Up
-   - D : Move Down
+   - Y : Move Down
 
 ![](images/asl_mediapipe_pointnet_demo03_ros2_gazebo_mycobot.gif)
 

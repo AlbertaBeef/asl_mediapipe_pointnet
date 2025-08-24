@@ -220,8 +220,8 @@ class AslControllerPoseNode(Node):
                           self.actionDetected = "R : Right"
                         if asl_sign == 'U':
                           self.actionDetected = "U : Up"
-                        if asl_sign == 'D':
-                          self.actionDetected = "D : Down"
+                        if asl_sign == 'Y':
+                          self.actionDetected = "Y : Down"
 
                         action_text = '['+self.actionDetected+']'
                         cv2.putText(annotated_image,action_text,
@@ -278,7 +278,7 @@ class AslControllerPoseNode(Node):
                         
                         if self.actionDetected == "U : Up":
                           target_pose_msg.pose.position.z = target_pose_msg.pose.position.z + 0.02 #2.0
-                        if self.actionDetected == "D : Down":
+                        if self.actionDetected == "Y : Down":
                           target_pose_msg.pose.position.z = target_pose_msg.pose.position.z - 0.02 #2.0
 
                         if self.actionDetected == "A : Advance":
