@@ -78,7 +78,6 @@ For convenience, the package also contains the following nodes:
       - displays images with cv2.imshow
 
 
-
 All of the demos are partitionned in 2 parts:
    - Part 1 can be executed on embedded hardware (without any ability to display)
    - Part 2 is meant to be executed on a host PC with Gazebo simulation.
@@ -147,7 +146,8 @@ Control Robotic Arm with Left/Right Hands:
 
 Launch the asl_controller_pose node with MYCOBOT-280 robotic arm:
 
-   - ros2 launch asl_mediapipe_pointnet demo31_mycobot_asl_part1.launch.py | moveit | ros2 launch asl_mediapipe_pointnet demo31_mycobot_asl_part2.launch.py
+   - moveit &
+   - ros2 launch asl_mediapipe_pointnet demo31_mycobot_asl_part1.launch.py | ros2 launch asl_mediapipe_pointnet demo31_mycobot_asl_part2.launch.py
 
 
 Control Robotic Arm with Hand Signs
